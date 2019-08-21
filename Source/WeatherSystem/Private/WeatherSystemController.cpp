@@ -15,6 +15,7 @@ AWeatherSystemController::AWeatherSystemController()
 	RootComponent = Root;
 
 	TransitionSpeed = 0.1f;
+	CurrentWeatherType = DefaultWeatherType;
 }
 
 
@@ -31,31 +32,32 @@ void AWeatherSystemController::BeginPlay()
 
 void AWeatherSystemController::SetCurrentWeatherZone(AWeatherZone* Zone)
 {
-	if (Zone == nullptr)
+	if (ActiveWeatherZone != nullptr)
 	{
-		if (CurrentWeatherType == nullptr)
+		if (Zone != nullptr)
 		{
-			return;
+			//Player moving from one zone to another
+			UWeatherType* Weather = Weather = Zone->GetCurrentWeatherDataAsset();
+			if (CurrentWeatherType != Weather)
+			{
+				ActiveWeatherZone->bNeedsToDeactivate = false;
+				CurrentWeatherType = Weather;
+				TransitionBetweenWeatherEffects();
+			}
 		}
 		else
 		{
-			DeactivateCurrentWeatherEffect();
+			//Player leaving for a non-zoned area
+			DeactivateCurrentWeather();
 		}
 	}
 	else
 	{
-		UWeatherType* Weather = Zone->GetCurrentWeatherDataAsset();
-		if (CurrentWeatherType == Weather)
+		//Can assume that zone is not null here
+		UWeatherType* Weather = Weather = Zone->GetCurrentWeatherDataAsset();
+		if (CurrentWeatherType != Weather)
 		{
-			return;
-		}
-
-		DeactivateCurrentWeatherEffect();
-
-		CurrentWeatherType = Weather;
-		if (Weather != nullptr)
-		{
-			ActivateCurrentWeatherEffect(Weather);
+			ActivateWeather(Weather);
 		}
 	}
 
@@ -68,13 +70,14 @@ void AWeatherSystemController::ActivateWeather(UWeatherType* WeatherType)
 	if (WeatherType != nullptr)
 	{
 		CurrentWeatherType = WeatherType;
-		ActivateCurrentWeatherEffect(WeatherType);
+		ActivateCurrentWeatherEffect();
 	}
 }
 
 
 void AWeatherSystemController::DeactivateCurrentWeather()
 {
+	CurrentWeatherType = DefaultWeatherType;
 	DeactivateCurrentWeatherEffect();
 }
 

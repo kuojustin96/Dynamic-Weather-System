@@ -29,6 +29,8 @@ AWeatherZone::AWeatherZone()
 
 	NextWeatherTypeInt = 0;
 	CurrentWeatherTypeInt = -1;
+
+	bNeedsToDeactivate = true;
 }
 
 
@@ -51,12 +53,12 @@ void AWeatherZone::BeginPlay()
 
 void AWeatherZone::OnZoneBeginOverlap(class UPrimitiveComponent* OverlapComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bIsActive == true)
+	if (WeatherSystemController == nullptr)
 	{
 		return;
 	}
 
-	if (WeatherSystemController == nullptr)
+	if (bIsActive == true)
 	{
 		return;
 	}
@@ -70,15 +72,19 @@ void AWeatherZone::OnZoneBeginOverlap(class UPrimitiveComponent* OverlapComponen
 
 void AWeatherZone::OnZoneEndOverlap(class UPrimitiveComponent* OverlapComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (bIsActive == false)
-	{
-		return;
-	}
-
 	if (WeatherSystemController == nullptr)
 	{
 		return;
 	}
+
+	if (bNeedsToDeactivate == false)
+	{
+		bIsActive = false;
+		bNeedsToDeactivate = true;
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("End Overlapped"));
 
 	bIsActive = false;
 	WeatherSystemController->SetCurrentWeatherZone(nullptr);
@@ -104,17 +110,7 @@ void AWeatherZone::SetupWeatherZone(AWeatherSystemController* Controller, float 
 void AWeatherZone::SetupNextWeatherType()
 {
 	//Replace with -1 for normal behavior
-	NextWeatherTypeInt = GetRandomNumberInRange(-1, WeatherTypes.Num() - 1);
-	UE_LOG(LogTemp, Warning, TEXT("Next Weather Type Int: %d"), NextWeatherTypeInt);
-	
-	if (NextWeatherTypeInt > -1)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Next Weather Type: %s"), *WeatherTypes[NextWeatherTypeInt]->WeatherName);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Next Weather Type: Default Weather"));
-	}
+	NextWeatherTypeInt = GetRandomNumberInRange(0, WeatherTypes.Num() - 1);
 
 	float TimeToWeather = GetRandomNumberInRange(MinWaitTime, MaxWaitTime);
 
@@ -125,8 +121,6 @@ void AWeatherZone::SetupNextWeatherType()
 
 void AWeatherZone::EnableWeatherType()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Activating Next Weather Type"));
-
 	if (NextWeatherTypeInt != CurrentWeatherTypeInt)
 	{
 		CurrentWeatherTypeInt = NextWeatherTypeInt;
@@ -143,7 +137,7 @@ void AWeatherZone::EnableWeatherType()
 
 		if (bIsActive)
 		{
-			WeatherSystemController->ActivateWeather(Weather);
+			WeatherSystemController->SetCurrentWeatherZone(this);
 		}
 	}
 

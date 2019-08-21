@@ -36,6 +36,9 @@ protected:
 	class AWeatherZone* ActiveWeatherZone;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weather")
+	class UWeatherType* DefaultWeatherType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weather")
 	float TransitionSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weather")
@@ -50,11 +53,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weather")
 	float MaxWeatherDuration;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ActivateCurrentWeatherEffect(class UWeatherType* WeatherTypeDataAsset);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void ActivateCurrentWeatherEffect();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DeactivateCurrentWeatherEffect();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void TransitionBetweenWeatherEffects();
+
+	UPROPERTY(BlueprintReadOnly, Category = "Weather")
 	class UWeatherType* CurrentWeatherType;
 };

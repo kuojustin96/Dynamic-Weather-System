@@ -17,6 +17,8 @@ public:
 
 	class UWeatherType* GetCurrentWeatherDataAsset();
 
+	bool bNeedsToDeactivate;
+
 protected:
 	virtual void BeginPlay() override;
 
