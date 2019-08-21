@@ -110,7 +110,7 @@ void AWeatherZone::SetupWeatherZone(AWeatherSystemController* Controller, float 
 void AWeatherZone::SetupNextWeatherType()
 {
 	//Replace with -1 for normal behavior
-	NextWeatherTypeInt = GetRandomNumberInRange(0, WeatherTypes.Num() - 1);
+	NextWeatherTypeInt = GetRandomNumberInRange(-1, WeatherTypes.Num() - 1);
 
 	float TimeToWeather = GetRandomNumberInRange(MinWaitTime, MaxWaitTime);
 

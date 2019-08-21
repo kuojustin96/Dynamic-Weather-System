@@ -40,6 +40,11 @@ void AWeatherSystemController::SetCurrentWeatherZone(AWeatherZone* Zone)
 			UWeatherType* Weather = Weather = Zone->GetCurrentWeatherDataAsset();
 			if (CurrentWeatherType != Weather)
 			{
+				if (Weather == nullptr)
+				{
+					Weather = DefaultWeatherType;
+				}
+
 				ActiveWeatherZone->bNeedsToDeactivate = false;
 				CurrentWeatherType = Weather;
 				TransitionBetweenWeatherEffects();
@@ -57,6 +62,11 @@ void AWeatherSystemController::SetCurrentWeatherZone(AWeatherZone* Zone)
 		UWeatherType* Weather = Weather = Zone->GetCurrentWeatherDataAsset();
 		if (CurrentWeatherType != Weather)
 		{
+			if (Weather == nullptr)
+			{
+				Weather = DefaultWeatherType;
+			}
+
 			ActivateWeather(Weather);
 		}
 	}
